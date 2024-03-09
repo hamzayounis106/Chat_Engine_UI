@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello Pete Interface</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap"
+    />
+
+    <link rel="stylesheet" href="./css/styles.css" />
+    <style></style>
+  </head>
+  <body>
+    <audio autoplay>
+      <source src="startup_sound.mp3" type="audio/mpeg" />
+      Your browser does not support the audio element.
+    </audio>
+    <div class="bgimage"></div>
+    <div class="bgimage_overlay"></div>
+    <div class="sections_wrapper">
+      <div class="left_wrapper">
+        <!-- <div class="header">
+          <img class="logo_image" src="images\helloPete.png" alt="logo" />
+        </div> -->
+        <div class="voice-interface">
+          <div class="logo_round">
+            <img src="images\helloPete.png" id="change" alt="logo_round" />
+          </div>
+          <p class="listening2">Got questions? I'm all ears!</p>
+          <div class="sound-wave">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+
+          <div class="lisne">
+            <img src="images\mic.jpg" alt="Microphone" class="microphone" />
+            <p class="listening">Listening...</p>
+          </div>
+          <div class="message-input">
+            <input
+              type="text"
+              id="messageInput"
+              placeholder="Type your message"
+            />
+            <button id="sendMessageButton">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="right_wrapper">
+        <div class="response_footer">
+          <img
+            src="images/pete-removebg-preview.png"
+            class="pete_image"
+            alt=""
+            srcset=""
+          />
+        </div>
+        <div class="response_wrapper">
+          <div id="responseContainer">
+            <p>Check for response inside the response container.</p>
+          </div>
+          <button id="clearButton">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+    <script type="text/javascript">
+      var socket = io.connect("http://" + document.domain + ":5002");
+
+      window.onload = function () {
+        document
+          .getElementById("clearButton")
+          .addEventListener("click", function () {
+            document.getElementById("responseContainer").innerHTML = "";
+          });
+        document
+          .getElementById("sendMessageButton")
+          .addEventListener("click", function () {
+            var messageInput = document.getElementById("messageInput");
+            var message = messageInput.value;
+            if (message.trim() !== "") {
+              socket.emit("message_from_client", { message: message });
+              messageInput.value = "";
+            }
+          });
+      };
+
+      socket.on("response_from_server", function (data) {
+        console.log("Data received from server:", data);
+
+        var container = document.getElementById("responseContainer");
+
+        if (data.text) {
+          let paragraph = document.createElement("p");
+          paragraph.innerHTML = data.text;
+          container.appendChild(paragraph);
+        }
+
+        if (data.images && data.images.length > 0) {
+          data.images.forEach(function (imgBase64) {
+            let img = new Image();
+            img.src = `data:image/png;base64,${imgBase64}`;
+            img.alt = "Descriptive alternative text";
+            container.appendChild(img);
+          });
+        } else {
+          console.log("No images to display.");
+        }
+      });
+    </script>
+  </body>
+  <script>
+    document.getElementById("change").addEventListener("click", function () {
+      var body = document.querySelector("body");
+      var listening2 = document.querySelector(".listening2");
+      var listening = document.querySelector(".listening");
+      var bars = document.querySelectorAll(".bar");
+      var responseWrapper = document.querySelector(".response_wrapper");
+
+      body.classList.toggle("change-background");
+      listening2.classList.toggle("change-color");
+      listening.classList.toggle("change-color");
+      bars.forEach(function (bar) {
+        bar.classList.toggle("bars_dark");
+      });
+      responseWrapper.classList.toggle("change-border");
+      console.log("Theme Changed");
+    });
+  </script>
+</html>
